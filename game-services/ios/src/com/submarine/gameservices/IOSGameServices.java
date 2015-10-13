@@ -55,7 +55,7 @@ public class IOSGameServices implements GameServices, GameCenterListener {
 
     @Override
     public void showLeaderBoards() {
-        //TODO show multiple leaderboards in iOS
+        gcManager.showLeaderboardsView();
     }
 
     @Override
