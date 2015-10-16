@@ -7,9 +7,9 @@ import com.submarine.gameservices.quests.QuestRewardListener;
 import org.robovm.apple.foundation.NSError;
 import org.robovm.apple.gamekit.GKAchievement;
 import org.robovm.apple.gamekit.GKLeaderboard;
-import org.robovm.apple.uikit.UIApplication;
+import org.robovm.apple.uikit.*;
 import org.robovm.bindings.gamecenter.GameCenterListener;
-import org.robovm.bindings.gamecenter.GameCenterManager;
+import org.robovm.objc.block.VoidBlock1;
 
 import java.util.ArrayList;
 
@@ -18,9 +18,10 @@ import java.util.ArrayList;
  */
 public class IOSGameServices implements GameServices, GameCenterListener {
     private static final String TAG = "com.submarine.gameservices.IOSGameServices";
-    private GameCenterManager gcManager;
+    private GCManager gcManager;
     private boolean isSignedIn;
     private GameServicesListener gameServicesListener;
+
 
     public IOSGameServices() {
         isSignedIn = false;
@@ -33,7 +34,7 @@ public class IOSGameServices implements GameServices, GameCenterListener {
             return;
         }
         if (gcManager == null) {
-            gcManager = new GameCenterManager(UIApplication.getSharedApplication().getKeyWindow(), this);
+            gcManager = new GCManager(UIApplication.getSharedApplication().getKeyWindow(), this);
         }
         gcManager.login();
     }
@@ -50,12 +51,22 @@ public class IOSGameServices implements GameServices, GameCenterListener {
 
     @Override
     public void showLeaderBoard(String identifier) {
-        gcManager.showLeaderboardView(identifier);
+        System.out.println("leadID: "+identifier);
+
+        if (isSignedIn) {
+            gcManager.showLeaderboardView(identifier);
+        } else {
+            showNotSignedInDialog("Game Center", "You are not signed in", "Ok");
+        }
     }
 
     @Override
     public void showLeaderBoards() {
-        gcManager.showLeaderboardsView();
+        if (isSignedIn) {
+            gcManager.showLeaderboardsView();
+        } else {
+            showNotSignedInDialog("Game Center", "You are not signed in", "Ok");
+        }
     }
 
     @Override
@@ -160,7 +171,8 @@ public class IOSGameServices implements GameServices, GameCenterListener {
 
     @Override
     public void playerLoginCompleted() {
-        //Gdx.app.log(TAG, "Sing in success");
+        Gdx.app.log(TAG, "Sign in success");
+
         isSignedIn = true;
         if (gameServicesListener != null) {
             gameServicesListener.onSignInSucceeded();
@@ -169,11 +181,31 @@ public class IOSGameServices implements GameServices, GameCenterListener {
 
     @Override
     public void playerLoginFailed(NSError nsError) {
-        //Gdx.app.log(TAG, "Sing in Fail");
+        Gdx.app.log(TAG, "Sign in Fail");
+
         isSignedIn = false;
         if (gameServicesListener != null) {
             gameServicesListener.onSignInFailed();
         }
+    }
+
+    private void showNotSignedInDialog(String title, String message, String cancelButtonTitle) {
+        UIAlertController alertController = new UIAlertController(title, message, UIAlertControllerStyle.Alert);
+        UIAlertAction OKAction = new UIAlertAction(cancelButtonTitle, UIAlertActionStyle.Default, new VoidBlock1<UIAlertAction> () {
+
+            @Override
+            public void invoke(UIAlertAction uiAlertAction) {
+
+            }
+        });
+        alertController.addAction(OKAction);
+        gcManager.getRootViewController().presentViewController(alertController, true, new Runnable() {
+            @Override
+            public void run() {
+                //any action after cancel is pressed
+                System.out.println("cancel");
+            }
+        });
     }
 
     @Override
