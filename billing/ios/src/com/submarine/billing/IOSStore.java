@@ -52,7 +52,7 @@ public class IOSStore implements Store {
 
     @Override
     public boolean isInitialized() {
-        return false;
+        return true;
     }
 
     @Override
