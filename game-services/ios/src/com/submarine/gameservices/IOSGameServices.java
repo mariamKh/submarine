@@ -12,6 +12,7 @@ import org.robovm.bindings.gamecenter.GameCenterListener;
 import org.robovm.objc.block.VoidBlock1;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by sargis on 2/26/15.
@@ -22,9 +23,14 @@ public class IOSGameServices implements GameServices, GameCenterListener {
     private boolean isSignedIn;
     private GameServicesListener gameServicesListener;
 
+    private HashMap<String, Integer> achieveProgressMap;
+
 
     public IOSGameServices() {
+
         isSignedIn = false;
+
+        achieveProgressMap = new HashMap<String, Integer>();
     }
 
 
@@ -56,7 +62,7 @@ public class IOSGameServices implements GameServices, GameCenterListener {
         if (isSignedIn) {
             gcManager.showLeaderboardView(identifier);
         } else {
-            showNotSignedInDialog("Game Center", "You are not signed in", "Ok");
+            showNotSignedInDialog();
         }
     }
 
@@ -65,23 +71,50 @@ public class IOSGameServices implements GameServices, GameCenterListener {
         if (isSignedIn) {
             gcManager.showLeaderboardsView();
         } else {
-            showNotSignedInDialog("Game Center", "You are not signed in", "Ok");
+            showNotSignedInDialog();
         }
     }
 
     @Override
     public void unlockAchievement(String achievementId) {
-
+        if (isSignedIn) {
+            gcManager.reportAchievement(achievementId);
+        } else {
+            showNotSignedInDialog();
+        }
     }
 
     @Override
-    public void incrementAchievement(String achievementId, int incrementAmount) {
+    public void incrementAchievement(String achievementId, int incrementAmount, int endValue) {
+        if (isSignedIn) {
+            //TODO save incremental achievements progress locally (to preferences)
+            //TODO change incremental achievements values
+            System.out.println("achieveProgressMap: "+achieveProgressMap);
+            Integer achieveProgress = achieveProgressMap.get(achievementId);
+            System.out.println("progress: "+achieveProgress);
+            if (achieveProgress == null) {
+                achieveProgressMap.put(achievementId, incrementAmount);
+            } else {
+                int newAmount = achieveProgress+incrementAmount;
+                System.out.println(achieveProgressMap+" "+achievementId+" "+newAmount);
+                achieveProgressMap.put(achievementId, newAmount);
+            }
+            double percentComplete = achieveProgressMap.get(achievementId) * 100d / endValue;
+            System.out.println("PercentComplete: "+percentComplete);
 
+            gcManager.reportAchievement(achievementId, percentComplete);
+        } else {
+            showNotSignedInDialog();
+        }
     }
 
     @Override
     public void showAchievements() {
-
+        if (isSignedIn) {
+            gcManager.showAchievementsView();
+        } else {
+            showNotSignedInDialog();
+        }
     }
 
     @Override
@@ -174,6 +207,12 @@ public class IOSGameServices implements GameServices, GameCenterListener {
         Gdx.app.log(TAG, "Sign in success");
 
         isSignedIn = true;
+
+        //TODO remove this line!!!
+        gcManager.resetAchievements();
+//        gcManager.loadLeaderboards();
+//        gcManager.loadAchievements();
+
         if (gameServicesListener != null) {
             gameServicesListener.onSignInSucceeded();
         }
@@ -189,7 +228,11 @@ public class IOSGameServices implements GameServices, GameCenterListener {
         }
     }
 
-    private void showNotSignedInDialog(String title, String message, String cancelButtonTitle) {
+    private void showNotSignedInDialog() {
+        showDialog("Game Center", "You are not signed in", "Ok");
+    }
+
+    private void showDialog(String title, String message, String cancelButtonTitle) {
         UIAlertController alertController = new UIAlertController(title, message, UIAlertControllerStyle.Alert);
         UIAlertAction OKAction = new UIAlertAction(cancelButtonTitle, UIAlertActionStyle.Default, new VoidBlock1<UIAlertAction> () {
 

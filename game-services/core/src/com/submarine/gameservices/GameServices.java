@@ -21,7 +21,7 @@ public interface GameServices {
 
     void unlockAchievement(String achievementId);
 
-    void incrementAchievement(String achievementId, int incrementAmount);
+    void incrementAchievement(String achievementId, int incrementAmount, int endValue);
 
     void showAchievements();
 

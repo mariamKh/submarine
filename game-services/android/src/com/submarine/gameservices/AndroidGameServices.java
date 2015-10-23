@@ -447,7 +447,7 @@ public class AndroidGameServices implements GameHelper.GameHelperListener, GameS
     }
 
     @Override
-    public void incrementAchievement(final String achievementId, final int incrementAmount) {
+    public void incrementAchievement(final String achievementId, final int incrementAmount, final int endValue) {
         if (isSignedIn()) {
             activity.runOnUiThread(new Runnable() {
                 @Override

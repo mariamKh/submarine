@@ -5,6 +5,8 @@ import com.submarine.gameservices.events.LoadedEventListener;
 import com.submarine.gameservices.quests.LoadedQuestListener;
 import com.submarine.gameservices.quests.QuestRewardListener;
 
+import java.util.HashMap;
+
 /**
  * Created by sargis on 2/25/15.
  */
@@ -12,8 +14,13 @@ public class DesktopGameServices implements GameServices {
     private boolean isSavedGamesLoadDone;
     private GameServicesListener<Object> gameServicesListener;
 
+    private HashMap<String, Integer> achieveProgressMap;
+
     public DesktopGameServices() {
         isSavedGamesLoadDone = false;
+
+        System.out.println("init!");
+        achieveProgressMap = new HashMap<String, Integer>();
     }
 
     @Override
@@ -67,8 +74,21 @@ public class DesktopGameServices implements GameServices {
     }
 
     @Override
-    public void incrementAchievement(String achievementId, int incrementAmount) {
-
+    public void incrementAchievement(String achievementId, int incrementAmount, int endValue) {
+//TODO remove all these!!!
+        System.out.println("achieveProgressMap: "+achieveProgressMap);
+        Integer achieveProgress = achieveProgressMap.get(achievementId);
+        System.out.println("progress: "+achieveProgress);
+        if (achieveProgress == null) {
+            achieveProgressMap.put(achievementId, incrementAmount);
+        } else {
+            int newAmount = achieveProgress+incrementAmount;
+            System.out.println(achieveProgressMap+" "+achievementId+" "+newAmount);
+            achieveProgressMap.put(achievementId, newAmount);
+        }
+        double percentComplete = achieveProgressMap.get(achievementId) * 100d / endValue;
+        System.out.println("EndValue: "+endValue+", AchieveProgress: "+achieveProgress);
+        System.out.println("PercentComplete: "+percentComplete);
     }
 
     @Override
