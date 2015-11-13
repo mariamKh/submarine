@@ -90,15 +90,11 @@ public class IOSGameServices implements GameServices, GameCenterListener {
             //TODO save incremental achievements progress locally (to preferences)
             //TODO change incremental achievements values
             System.out.println("achieveProgressMap: "+achieveProgressMap);
-            Integer achieveProgress = achieveProgressMap.get(achievementId);
+            Integer achieveProgress = achieveProgressMap.get(achievementId) == null
+                    ? 0 : achieveProgressMap.get(achievementId);
             System.out.println("progress: "+achieveProgress);
-            if (achieveProgress == null) {
-                achieveProgressMap.put(achievementId, incrementAmount);
-            } else {
-                int newAmount = achieveProgress+incrementAmount;
-                System.out.println(achieveProgressMap+" "+achievementId+" "+newAmount);
-                achieveProgressMap.put(achievementId, newAmount);
-            }
+            int newAmount = achieveProgress+incrementAmount;
+            achieveProgressMap.put(achievementId, newAmount);
             double percentComplete = achieveProgressMap.get(achievementId) * 100d / endValue;
             System.out.println("PercentComplete: "+percentComplete);
 
