@@ -1,6 +1,7 @@
 package com.submarine.gameservices;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.submarine.gameservices.events.LoadedEventListener;
 import com.submarine.gameservices.quests.LoadedQuestListener;
 import com.submarine.gameservices.quests.QuestRewardListener;
@@ -12,25 +13,24 @@ import org.robovm.bindings.gamecenter.GameCenterListener;
 import org.robovm.objc.block.VoidBlock1;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by sargis on 2/26/15.
  */
 public class IOSGameServices implements GameServices, GameCenterListener {
     private static final String TAG = "com.submarine.gameservices.IOSGameServices";
+    private static final String IOS_PREFERENCES = "achievements_preferences";
+    private Preferences preferences;
     private GCManager gcManager;
     private boolean isSignedIn;
     private GameServicesListener gameServicesListener;
 
-    private HashMap<String, Integer> achieveProgressMap;
-
+//    public boolean isReset = false;
 
     public IOSGameServices() {
 
         isSignedIn = false;
 
-        achieveProgressMap = new HashMap<String, Integer>();
     }
 
 
@@ -39,10 +39,15 @@ public class IOSGameServices implements GameServices, GameCenterListener {
         if (isSignedIn) {
             return;
         }
+
         if (gcManager == null) {
             gcManager = new GCManager(UIApplication.getSharedApplication().getKeyWindow(), this);
         }
         gcManager.login();
+
+        if (preferences == null) {
+            preferences = Gdx.app.getPreferences(IOS_PREFERENCES);
+        }
     }
 
     @Override
@@ -57,8 +62,6 @@ public class IOSGameServices implements GameServices, GameCenterListener {
 
     @Override
     public void showLeaderBoard(String identifier) {
-        System.out.println("leadID: "+identifier);
-
         if (isSignedIn) {
             gcManager.showLeaderboardView(identifier);
         } else {
@@ -87,18 +90,26 @@ public class IOSGameServices implements GameServices, GameCenterListener {
     @Override
     public void incrementAchievement(String achievementId, int incrementAmount, int endValue) {
         if (isSignedIn) {
-            //TODO save incremental achievements progress locally (to preferences)
-            //TODO change incremental achievements values
-            System.out.println("achieveProgressMap: "+achieveProgressMap);
-            Integer achieveProgress = achieveProgressMap.get(achievementId) == null
-                    ? 0 : achieveProgressMap.get(achievementId);
-            System.out.println("progress: "+achieveProgress);
-            int newAmount = achieveProgress+incrementAmount;
-            achieveProgressMap.put(achievementId, newAmount);
-            double percentComplete = achieveProgressMap.get(achievementId) * 100d / endValue;
-            System.out.println("PercentComplete: "+percentComplete);
+            if (preferences.getInteger(achievementId) == -1) {
+                return;
+            }
 
-            gcManager.reportAchievement(achievementId, percentComplete);
+            Integer achieveProgress = preferences.getInteger(achievementId);
+            int newAmount = achieveProgress+incrementAmount;
+            preferences.putInteger(achievementId, newAmount);
+            preferences.flush();
+            double percentComplete = preferences.getInteger(achievementId) * 100 / endValue;
+//            System.out.println("PercentComplete: "+percentComplete+" of " + endValue+" endValue");
+            if (percentComplete > 100) {
+                preferences.putInteger(achievementId, -1);
+            } else {
+                preferences.putInteger(achievementId, preferences.getInteger(achievementId));
+
+                gcManager.reportAchievement(achievementId, percentComplete);
+            }
+            preferences.flush();
+
+
         } else {
             showNotSignedInDialog();
         }
@@ -204,10 +215,14 @@ public class IOSGameServices implements GameServices, GameCenterListener {
 
         isSignedIn = true;
 
-        //TODO remove this line!!!
-        gcManager.resetAchievements();
-//        gcManager.loadLeaderboards();
-//        gcManager.loadAchievements();
+//        //TODO remove
+//        if(!isReset) {
+//            System.out.println("reset!");
+//            gcManager.resetAchievements();
+//            isReset = true;
+//        }
+        gcManager.loadLeaderboards();
+        gcManager.loadAchievements();
 
         if (gameServicesListener != null) {
             gameServicesListener.onSignInSucceeded();
