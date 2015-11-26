@@ -8,7 +8,7 @@ public interface GameServicesListener<T> {
 
     void onSignInSucceeded();
 
-    void savedGamesLoadFailed(T result);
+    void savedGamesLoadFailed();
 
     void savedGamesLoadSucceeded(T result);
 
@@ -20,5 +20,5 @@ public interface GameServicesListener<T> {
 
 //    void savedGamesLoadDone();
 
-    void savedGamesLoadContentsUnavailable(T result);
+    void savedGamesLoadContentsUnavailable();
 }

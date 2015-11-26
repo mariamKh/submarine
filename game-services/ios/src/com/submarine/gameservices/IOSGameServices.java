@@ -170,18 +170,28 @@ public class IOSGameServices implements GameServices, GameCenterListener {
     }
 
     @Override
-    public void savedGamesLoad(String snapshotName, boolean createIfMissing) {
-
+    public void savedGamesLoad(String savedGameName, boolean createIfMissing) {
+        if (isSignedIn) {
+            gcManager.loadGameData(savedGameName);
+        } else {
+            showNotSignedInDialog();
+        }
     }
 
     @Override
-    public void savedGamesUpdate(String snapshotName, byte[] data, boolean createIfMissing) {
-
+    public void savedGamesUpdate(String savedGameName, byte[] data, boolean createIfMissing) {
+        if (isSignedIn) {
+            gcManager.saveGameData(savedGameName, data);
+        } else {
+            showNotSignedInDialog();
+        }
     }
 
     @Override
     public void setListener(GameServicesListener gameServicesListener) {
         this.gameServicesListener = gameServicesListener;
+
+        gcManager.setGameServicesListener(gameServicesListener);
     }
 
     /*@Override

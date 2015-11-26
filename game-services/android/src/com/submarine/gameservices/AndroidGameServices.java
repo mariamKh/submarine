@@ -289,13 +289,13 @@ public class AndroidGameServices implements GameHelper.GameHelperListener, GameS
                 gameServicesListener.savedGamesLoadSucceeded(openSnapshotResult);
                 break;
             case GamesStatusCodes.STATUS_SNAPSHOT_CONTENTS_UNAVAILABLE:
-                gameServicesListener.savedGamesLoadContentsUnavailable(openSnapshotResult);
+                gameServicesListener.savedGamesLoadContentsUnavailable();
                 break;
             case GamesStatusCodes.STATUS_SNAPSHOT_CONFLICT:
                 gameServicesListener.savedGamesLoadConflicted(openSnapshotResult, retryCount);
                 break;
             default:
-                gameServicesListener.savedGamesLoadFailed(openSnapshotResult);
+                gameServicesListener.savedGamesLoadFailed();
                 break;
         }
         /*if (status == GamesStatusCodes.STATUS_OK*//* || status == GamesStatusCodes.STATUS_SNAPSHOT_CONTENTS_UNAVAILABLE*//*) {
