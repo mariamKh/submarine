@@ -43,6 +43,7 @@ public class IOSGameServices implements GameServices, GameCenterListener {
         if (gcManager == null) {
             gcManager = new GCManager(UIApplication.getSharedApplication().getKeyWindow(), this);
         }
+        gcManager.setGameServicesListener(gameServicesListener);
         gcManager.login();
 
         if (preferences == null) {
@@ -190,8 +191,6 @@ public class IOSGameServices implements GameServices, GameCenterListener {
     @Override
     public void setListener(GameServicesListener gameServicesListener) {
         this.gameServicesListener = gameServicesListener;
-
-        gcManager.setGameServicesListener(gameServicesListener);
     }
 
     /*@Override

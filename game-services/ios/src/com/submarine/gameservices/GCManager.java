@@ -35,11 +35,17 @@ public class GCManager extends GameCenterManager {
         localPlayer.saveGameData(result, savedGameName, new VoidBlock2<GKSavedGame, NSError>() {
             @Override
             public void invoke(GKSavedGame gkSavedGame, NSError nsError) {
-                System.out.println("saved game: "+gkSavedGame.getName()+" "+gkSavedGame.getModificationDate()
-                        +" "+gkSavedGame.getDeviceName()+" error: "+nsError);
+                if (gkSavedGame != null) {
+                    System.out.println("saved game: "+gkSavedGame.getName()+" "+gkSavedGame.getModificationDate()
+                            +" "+gkSavedGame.getDeviceName()+" error: "+nsError);
+                } else {
+                    System.out.println("no saved game");
+                }
+
                 if (nsError == null)  {
                     gameServicesListener.savedGamesUpdateSucceeded();
                 } else {
+                    System.out.println(nsError.getUserInfo().getLocalizedDescription());
                     gameServicesListener.savedGamesUpdateFailed();
                     return;
                 }
