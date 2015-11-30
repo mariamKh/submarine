@@ -33,6 +33,18 @@
         <array>
             <string>armv7</string>
         </array>
+        <key>NSUbiquitousContainers</key>
+        <dict>
+            <key>iCloud.com.underwater.tapventures</key>
+            <dict>
+                <key>NSUbiquitousContainerIsDocumentScopePublic</key>
+                <true/>
+                <key>NSUbiquitousContainerSupportedFolderLevels</key>
+                <string>Any</string>
+                <key>NSUbiquitousContainerName</key>
+                <string>Tapventures</string>
+            </dict>
+        </dict>
         <key>UISupportedInterfaceOrientations</key>
         <array>
             <string>UIInterfaceOrientationPortrait</string>

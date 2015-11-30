@@ -124,7 +124,7 @@ public class DesktopGameServices implements GameServices {
                 gameServicesListener.savedGamesLoadConflicted(new Object(), 0);
                 break;
             default:
-                gameServicesListener.savedGamesLoadFailed(new Object());
+                gameServicesListener.savedGamesLoadFailed();
                 break;
         }
         isSavedGamesLoadDone = true;
