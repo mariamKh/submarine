@@ -7,10 +7,12 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import com.badlogic.gdx.Gdx;
 import com.google.android.gms.common.api.*;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesStatusCodes;
+import com.google.android.gms.games.achievement.Achievements;
 import com.google.android.gms.games.event.Events;
 import com.google.android.gms.games.quest.Quest;
 import com.google.android.gms.games.quest.QuestBuffer;
@@ -24,6 +26,7 @@ import com.google.android.gms.games.stats.Stats;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.example.games.basegameutils.GameHelper;
+import com.submarine.gameservices.achievements.AchievementUnlockListener;
 import com.submarine.gameservices.events.LoadedEventListener;
 import com.submarine.gameservices.quests.LoadedQuestListener;
 import com.submarine.gameservices.quests.QuestConstants;
@@ -483,24 +486,42 @@ public class AndroidGameServices implements GameHelper.GameHelperListener, GameS
     }
 
     @Override
-    public void unlockAchievement(final String achievementId) {
+    public void unlockAchievement(final String achievementId, final AchievementUnlockListener unlockListener) {
         if (isSignedIn()) {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Games.Achievements.unlock(gameHelper.getApiClient(), achievementId);
+//                    Games.Achievements.unlock(gameHelper.getApiClient(), achievementId);
+                    Games.Achievements.unlockImmediate(gameHelper.getApiClient(), achievementId)
+                            .setResultCallback(new ResultCallback<Achievements.UpdateAchievementResult>() {
+                                @Override
+                                public void onResult(@NonNull Achievements.UpdateAchievementResult updateAchievementResult) {
+                                    if (updateAchievementResult.getStatus().getStatusCode() == GamesStatusCodes.STATUS_ACHIEVEMENT_UNLOCKED) {
+                                        unlockListener.onResult(achievementId);
+                                    }
+                                }
+                            });
                 }
             });
         }
     }
 
     @Override
-    public void incrementAchievement(final String achievementId, final int incrementAmount) {
+    public void incrementAchievement(final String achievementId, final int incrementAmount, final AchievementUnlockListener unlockListener) {
         if (isSignedIn()) {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Games.Achievements.increment(gameHelper.getApiClient(), achievementId, incrementAmount);
+//                    Games.Achievements.increment(gameHelper.getApiClient(), achievementId, incrementAmount);
+                    Games.Achievements.incrementImmediate(gameHelper.getApiClient(), achievementId, incrementAmount)
+                            .setResultCallback(new ResultCallback<Achievements.UpdateAchievementResult>() {
+                                @Override
+                                public void onResult(@NonNull Achievements.UpdateAchievementResult updateAchievementResult) {
+                                    if (updateAchievementResult.getStatus().getStatusCode() == GamesStatusCodes.STATUS_ACHIEVEMENT_UNLOCKED) {
+                                        unlockListener.onResult(achievementId);
+                                    }
+                                }
+                            });
                 }
             });
         }

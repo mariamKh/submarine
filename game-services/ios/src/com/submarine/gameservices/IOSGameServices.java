@@ -1,6 +1,6 @@
 package com.submarine.gameservices;
 
-import com.badlogic.gdx.Gdx;
+import com.submarine.gameservices.achievements.AchievementUnlockListener;
 import com.submarine.gameservices.events.LoadedEventListener;
 import com.submarine.gameservices.quests.LoadedQuestListener;
 import com.submarine.gameservices.quests.QuestRewardListener;
@@ -59,12 +59,12 @@ public class IOSGameServices implements GameServices, GameCenterListener {
     }
 
     @Override
-    public void unlockAchievement(String achievementId) {
+    public void unlockAchievement(String achievementId, AchievementUnlockListener unlockListener) {
 
     }
 
     @Override
-    public void incrementAchievement(String achievementId, int incrementAmount) {
+    public void incrementAchievement(String achievementId, int incrementAmount, AchievementUnlockListener unlockListener) {
 
     }
 

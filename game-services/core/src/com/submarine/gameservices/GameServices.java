@@ -1,5 +1,6 @@
 package com.submarine.gameservices;
 
+import com.submarine.gameservices.achievements.AchievementUnlockListener;
 import com.submarine.gameservices.events.LoadedEventListener;
 import com.submarine.gameservices.quests.LoadedQuestListener;
 import com.submarine.gameservices.quests.QuestRewardListener;
@@ -19,9 +20,9 @@ public interface GameServices {
 
     void showLeaderBoards();
 
-    void unlockAchievement(String achievementId);
+    void unlockAchievement(String achievementId, AchievementUnlockListener unlockListener);
 
-    void incrementAchievement(String achievementId, int incrementAmount);
+    void incrementAchievement(String achievementId, int incrementAmount, AchievementUnlockListener unlockListener);
 
     void showAchievements();
 
