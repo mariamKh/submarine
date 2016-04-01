@@ -1,6 +1,8 @@
 package com.submarine.gameservices;
 
+import com.badlogic.gdx.utils.Array;
 import com.submarine.gameservices.achievements.AchievementUnlockListener;
+import com.submarine.gameservices.achievements.AchievementsLoadListener;
 import com.submarine.gameservices.events.LoadedEventListener;
 import com.submarine.gameservices.quests.LoadedQuestListener;
 import com.submarine.gameservices.quests.QuestRewardListener;
@@ -25,6 +27,8 @@ public interface GameServices {
     void incrementAchievement(String achievementId, int incrementAmount, AchievementUnlockListener unlockListener);
 
     void showAchievements();
+
+    void loadAchievements(Array<String> achievementIds, AchievementUnlockListener unlockListener, AchievementsLoadListener loadListener);
 
     void loadEvents(LoadedEventListener listener);
 

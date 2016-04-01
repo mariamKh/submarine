@@ -9,9 +9,12 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Array;
 import com.google.android.gms.common.api.*;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesStatusCodes;
+import com.google.android.gms.games.achievement.Achievement;
+import com.google.android.gms.games.achievement.AchievementBuffer;
 import com.google.android.gms.games.achievement.Achievements;
 import com.google.android.gms.games.event.Events;
 import com.google.android.gms.games.quest.Quest;
@@ -27,12 +30,14 @@ import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.example.games.basegameutils.GameHelper;
 import com.submarine.gameservices.achievements.AchievementUnlockListener;
+import com.submarine.gameservices.achievements.AchievementsLoadListener;
 import com.submarine.gameservices.events.LoadedEventListener;
 import com.submarine.gameservices.quests.LoadedQuestListener;
 import com.submarine.gameservices.quests.QuestConstants;
 import com.submarine.gameservices.quests.QuestRewardListener;
 
 import java.nio.charset.Charset;
+import java.util.Iterator;
 
 public class AndroidGameServices implements GameHelper.GameHelperListener, GameServices {
     // Client request flags
@@ -496,9 +501,7 @@ public class AndroidGameServices implements GameHelper.GameHelperListener, GameS
                             .setResultCallback(new ResultCallback<Achievements.UpdateAchievementResult>() {
                                 @Override
                                 public void onResult(@NonNull Achievements.UpdateAchievementResult updateAchievementResult) {
-                                    if (updateAchievementResult.getStatus().getStatusCode() == GamesStatusCodes.STATUS_ACHIEVEMENT_UNLOCKED) {
-                                        unlockListener.onResult(achievementId);
-                                    }
+                                    unlockListener.onResult(achievementId);
                                 }
                             });
                 }
@@ -525,6 +528,34 @@ public class AndroidGameServices implements GameHelper.GameHelperListener, GameS
                 }
             });
         }
+    }
+
+    @Override
+    public void loadAchievements(final Array<String> achievementIds, final AchievementUnlockListener unlockListener,
+                                 final AchievementsLoadListener loadListener) {
+        Games.Achievements.load(gameHelper.getApiClient(), false)
+                .setResultCallback(new ResultCallback<Achievements.LoadAchievementsResult>() {
+            @Override
+            public void onResult(@NonNull Achievements.LoadAchievementsResult loadAchievementsResult) {
+                Achievement ach;
+                AchievementBuffer aBuffer = loadAchievementsResult.getAchievements();
+                Iterator<Achievement> aIterator = aBuffer.iterator();
+
+                while (aIterator.hasNext()) {
+                    ach = aIterator.next();
+                    for (String achievementId : achievementIds) {
+                        if (achievementId.equals(ach.getAchievementId())) {
+                            System.out.println("state: "+ach.getState());
+                            if (ach.getState() == Achievement.STATE_UNLOCKED) {
+                                unlockListener.onResult(achievementId);
+                            }
+                        }
+                    }
+                }
+
+                loadListener.onResult();
+            }
+        });
     }
 
     @Override
